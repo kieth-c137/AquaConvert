@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AquaConvert: Dive Into Conversions!</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --deep:#06284f; --mid:#0a5c8f; --turq:#16b5c4; --aqua:#7ff3e6; --foam:#eafffd;
+  --ink:#f2fdff; --ink-soft:#bfe9f0; --coral:#ff8a80; --sun:#ffd98a;
+  --glass:rgba(255,255,255,.13); --glass-edge:rgba(255,255,255,.35);
+  --field:rgba(4,36,70,.55);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ink:#f2fdff; --deep:#06284f; } }
+:root[data-theme="dark"]{ --ink:#f2fdff; --deep:#06284f; }
+html{scroll-behavior:smooth;scroll-padding-top:calc(76px + env(safe-area-inset-top,0px))}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0; min-height:100vh; color:var(--ink);
+  font-family:"Fredoka","Trebuchet MS","Segoe UI",system-ui,sans-serif; line-height:1.55;
+  background:var(--deep);
+  background:linear-gradient(180deg,#8be9f0 0%,#16b5c4 14%,#0a8fb0 34%,#0a5c8f 62%,#06284f 100%);
+  background-attachment:fixed; overflow-x:hidden;
+}
+/* light rays */
+.rays{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
+  background:repeating-linear-gradient(105deg,transparent 0 90px,rgba(255,255,255,.14) 90px 140px,transparent 140px 260px);
+  -webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);mask-image:linear-gradient(180deg,#000,transparent 70%);
+  animation:sway 14s ease-in-out infinite alternate}
+@keyframes sway{from{transform:translateX(-30px)}to{transform:translateX(30px)}}
+#sea{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.bubble{position:absolute;bottom:-60px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.9),rgba(255,255,255,.15) 45%,rgba(127,243,230,.25));
+  border:1px solid rgba(255,255,255,.55);box-shadow:0 0 12px rgba(127,243,230,.5);
+  animation:rise linear infinite}
+@keyframes rise{0%{transform:translate(0,0) scale(.6);opacity:0}10%{opacity:1}
+  50%{transform:translate(18px,-55vh) scale(1)}100%{transform:translate(-14px,-115vh) scale(1.1);opacity:.1}}
+.swimmer{position:absolute;left:-140px;animation:swim linear infinite}
+.swimmer.rev{left:auto;right:-140px;animation-name:swimrev}
+@keyframes swim{to{transform:translateX(calc(100vw + 300px))}}
+@keyframes swimrev{to{transform:translateX(calc(-100vw - 300px))}}
+.swimmer svg{display:block;animation:bob 3s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(127,243,230,.5))}
+.swimmer.rev svg{transform:scaleX(-1)}
+@keyframes bob{50%{translate:0 -16px}}
+.tail{transform-origin:12px 30px;animation:wag .5s ease-in-out infinite alternate}
+@keyframes wag{to{transform:rotate(14deg)}}
+.jelly{position:absolute;animation:drift 12s ease-in-out infinite alternate;filter:drop-shadow(0 0 14px rgba(255,170,230,.7))}
+@keyframes drift{to{transform:translate(40px,-60px)}}
+.jelly .bell{transform-origin:30px 30px;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08,.88)}}
+.jelly .arms{transform-origin:30px 34px;animation:flow 2.4s ease-in-out infinite}
+@keyframes flow{50%{transform:scaleY(1.15) skewX(4deg)}}
+
+.page{position:relative;z-index:2}
+/* nav */
+nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 5vw 12px;
+  background:rgba(6,40,79,.38);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--glass-edge)}
+.brand{font-weight:700;font-size:1.25rem;display:flex;align-items:center;gap:8px;color:var(--foam);text-decoration:none}
+.links{display:flex;gap:6px}
+.links a{color:var(--ink);text-decoration:none;font-weight:500;padding:8px 16px;border-radius:999px;transition:background .2s,box-shadow .2s}
+.links a:hover,.links a:focus-visible{background:var(--glass);box-shadow:0 0 16px rgba(127,243,230,.5);outline:none}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+section{padding:70px 5vw}
+.wrap{max-width:980px;margin:0 auto}
+
+/* hero */
+#home{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;min-height:78vh;max-width:1080px;margin:0 auto}
+h1{font-size:clamp(2.3rem,6.4vw,4.4rem);line-height:1.05;margin:0 0 14px;font-weight:700;
+  text-shadow:0 4px 24px rgba(4,36,70,.5),0 0 30px rgba(127,243,230,.55);letter-spacing:-.01em}
+h1 .sub1{display:block;font-size:.5em;font-weight:500;color:var(--aqua);margin-top:6px}
+.tag{font-size:clamp(1.05rem,2.4vw,1.3rem);color:var(--foam);max-width:34ch;margin:0 0 26px}
+.btn{font:inherit;font-weight:600;cursor:pointer;border:0;border-radius:999px;padding:12px 26px;color:#04365a;
+  background:linear-gradient(135deg,var(--aqua),#5de0f5);box-shadow:0 8px 22px rgba(4,36,70,.35),0 0 20px rgba(127,243,230,.5);
+  text-decoration:none;display:inline-block;transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 26px rgba(4,36,70,.4),0 0 30px rgba(127,243,230,.8)}
+.btn:active{transform:scale(.97)}
+.btn.alt{color:var(--ink);background:var(--glass);border:1px solid var(--glass-edge);box-shadow:0 6px 18px rgba(4,36,70,.3)}
+.mascot{justify-self:center;text-align:center;position:relative}
+.mascot svg{width:min(100%,340px);height:auto;animation:float 5s ease-in-out infinite;filter:drop-shadow(0 12px 22px rgba(4,36,70,.45))}
+@keyframes float{50%{transform:translateY(-14px) rotate(-1.5deg)}}
+.spout{transform-origin:150px 62px;animation:spout 2.6s ease-in-out infinite}
+@keyframes spout{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+.fin{transform-origin:190px 150px;animation:wave 1.6s ease-in-out infinite alternate}
+@keyframes wave{to{transform:rotate(-16deg)}}
+.say{position:absolute;top:-6px;left:-4px;max-width:190px;font-size:.92rem;padding:10px 14px;border-radius:18px 18px 18px 4px;
+  background:rgba(255,255,255,.92);color:#04365a;box-shadow:0 8px 20px rgba(4,36,70,.3);text-align:left}
+
+/* glass */
+.card{background:var(--glass);border:1px solid var(--glass-edge);border-radius:30px;padding:clamp(20px,4vw,38px);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 18px 50px rgba(4,36,70,.4),inset 0 1px 0 rgba(255,255,255,.4)}
+h2{font-size:clamp(1.7rem,4vw,2.4rem);margin:0 0 6px;text-shadow:0 2px 16px rgba(4,36,70,.5)}
+.lead{margin:0 0 24px;color:var(--ink-soft)}
+.cats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.cat{font:inherit;font-weight:500;cursor:pointer;color:var(--ink);padding:10px 18px;border-radius:999px;
+  background:rgba(255,255,255,.1);border:1px solid var(--glass-edge);transition:all .2s}
+.cat:hover{background:rgba(255,255,255,.22)}
+.cat[aria-pressed="true"]{color:#04365a;background:linear-gradient(135deg,var(--aqua),#5de0f5);border-color:transparent;box-shadow:0 0 22px rgba(127,243,230,.7)}
+.grid{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:end}
+label{display:block;font-weight:500;margin-bottom:6px;color:var(--foam)}
+input,select{width:100%;font:inherit;font-size:1.05rem;color:var(--ink);background:var(--field);
+  border:1.5px solid var(--glass-edge);border-radius:18px;padding:13px 16px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:var(--aqua);box-shadow:0 0 18px rgba(127,243,230,.5)}
+select option{background:#06284f;color:#f2fdff}
+.amount{margin-bottom:16px}
+.swap{width:54px;height:54px;padding:0;font-size:1.4rem;display:grid;place-items:center;transition:transform .4s}
+.swap.spin{transform:rotate(180deg)}
+.err{min-height:1.5em;color:#ffd0cb;font-weight:500;margin:10px 4px 0}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.result{margin-top:22px;text-align:center;padding:26px 18px;border-radius:26px;position:relative;overflow:hidden;
+  background:radial-gradient(circle at 50% 0%,rgba(127,243,230,.45),rgba(22,181,196,.2) 60%,rgba(255,255,255,.08));
+  border:1.5px solid rgba(127,243,230,.7);box-shadow:0 0 40px rgba(127,243,230,.35),inset 0 0 30px rgba(255,255,255,.12);
+  animation:glow 3.5s ease-in-out infinite alternate}
+@keyframes glow{to{box-shadow:0 0 60px rgba(127,243,230,.6),inset 0 0 40px rgba(255,255,255,.2)}}
+.result .eq{color:var(--ink-soft);min-height:1.5em}
+.result .big{font-size:clamp(2rem,7vw,3.4rem);font-weight:700;color:var(--foam);word-break:break-word;
+  text-shadow:0 0 22px rgba(127,243,230,.9);line-height:1.15;margin:4px 0}
+.result .big.pop{animation:pop .35s ease}
+@keyframes pop{50%{transform:scale(1.07)}}
+.result .unit{font-size:1.1rem;color:var(--aqua)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:22px}
+.fact{padding:16px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid var(--glass-edge)}
+.fact b{display:block;font-size:1.1rem;color:var(--aqua)}
+.about p{margin:0 0 14px;max-width:62ch}
+.shells{display:flex;gap:18px;align-items:flex-end;margin-top:18px}
+/* seafloor */
+.floor{position:relative;z-index:2;margin-top:30px;line-height:0}
+.floor svg{width:100%;height:auto;display:block}
+.sway{transform-box:fill-box;transform-origin:50% 100%;animation:swaycoral 4s ease-in-out infinite alternate}
+.sway:nth-child(2n){animation-duration:5s;animation-delay:-1s}
+@keyframes swaycoral{to{transform:rotate(4deg)}}
+footer{position:relative;z-index:2;text-align:center;padding:22px 5vw calc(28px + env(safe-area-inset-bottom,0px));
+  background:#042a45;color:var(--foam);font-weight:500}
+@media (max-width:760px){
+  #home{grid-template-columns:1fr;text-align:center;min-height:auto;padding-top:30px}
+  .tag{margin-inline:auto}
+  .mascot{order:-1}.say{position:static;margin:0 auto 6px;display:inline-block;border-radius:18px}
+  .grid{grid-template-columns:1fr}
+  .swap{justify-self:center}
+  .links a{padding:8px 11px}
+  .brand span.t{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+  #sea .bubble,#sea .swimmer{display:none}
+}
+</style>
+</head>
+<body>
+<div class="rays" aria-hidden="true"></div>
+<div id="sea" aria-hidden="true">
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="fish" viewBox="0 0 90 60">
+        <g class="tail"><path d="M14 30 L-2 14 Q4 30 -2 46 Z" fill="currentColor" opacity=".85"/></g>
+        <ellipse cx="46" cy="30" rx="32" ry="20" fill="currentColor"/>
+        <path d="M40 12 Q48 0 58 12 Z" fill="currentColor" opacity=".85"/>
+        <path d="M30 18 Q24 30 30 42" stroke="#fff" stroke-opacity=".5" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="64" cy="25" r="6" fill="#fff"/><circle cx="66" cy="25" r="3" fill="#04365a"/>
+        <path d="M68 36 Q74 40 78 35" stroke="#04365a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+  </svg>
+  <div class="swimmer" style="top:22%;animation-duration:34s;color:#ffb347"><svg width="90" height="60"><use href="#fish"/></svg></div>
+  <div class="swimmer rev" style="top:46%;animation-duration:44s;animation-delay:-14s;color:#ff8fab"><svg width="70" height="46"><use href="#fish"/></svg></div>
+  <div class="swimmer" style="top:66%;animation-duration:52s;animation-delay:-30s;color:#ffe066"><svg width="110" height="73"><use href="#fish"/></svg></div>
+  <div class="swimmer rev" style="top:34%;animation-duration:60s;animation-delay:-6s;color:#9ef0ff"><svg width="56" height="37"><use href="#fish"/></svg></div>
+  <svg class="jelly" style="left:6%;top:48%" width="70" height="110" viewBox="0 0 60 95">
+    <g class="arms" stroke="#ffc2ee" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85">
+      <path d="M16 36 Q10 55 18 70 T16 92"/><path d="M26 38 Q22 60 28 74 T26 94"/><path d="M36 38 Q40 60 34 74 T36 94"/><path d="M45 36 Q52 55 44 70 T46 92"/></g>
+    <g class="bell"><path d="M6 36 Q6 4 30 4 Q54 4 54 36 Q42 30 30 36 Q18 30 6 36 Z" fill="#ffb3ec" fill-opacity=".85" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>
+    <circle cx="22" cy="22" r="2.6" fill="#7a2c68"/><circle cx="38" cy="22" r="2.6" fill="#7a2c68"/>
+    <path d="M26 28 Q30 31 34 28" stroke="#7a2c68" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+  </svg>
+  <svg class="jelly" style="right:7%;top:24%;animation-delay:-5s" width="52" height="82" viewBox="0 0 60 95">
+    <g class="arms" stroke="#b8f3ff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85">
+      <path d="M16 36 Q10 55 18 70 T16 92"/><path d="M30 38 Q26 60 32 74 T30 94"/><path d="M45 36 Q52 55 44 70 T46 92"/></g>
+    <g class="bell"><path d="M6 36 Q6 4 30 4 Q54 4 54 36 Q42 30 30 36 Q18 30 6 36 Z" fill="#a8e8ff" fill-opacity=".85" stroke="#fff" stroke-opacity=".6" stroke-width="1.5"/>
+    <circle cx="22" cy="22" r="2.6" fill="#1b4f72"/><circle cx="38" cy="22" r="2.6" fill="#1b4f72"/>
+    <path d="M26 28 Q30 31 34 28" stroke="#1b4f72" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+  </svg>
+</div>
+
+<div class="page">
+<nav aria-label="Main">
+  <a class="brand" href="#home"><span aria-hidden="true">🐳</span><span class="t">AquaConvert</span></a>
+  <div class="links"><a href="#home">Home</a><a href="#converter">Converter</a><a href="#about">About</a></div>
+</nav>
+
+<section id="home">
+  <div>
+    <h1>AquaConvert<span class="sub1">Dive Into Conversions!</span></h1>
+    <p class="tag">Your magical underwater tool for quick and easy conversions.</p>
+    <a class="btn" href="#converter">Start diving</a>
+    <a class="btn alt" href="#about" style="margin-left:8px">Meet the whale</a>
+  </div>
+  <div class="mascot">
+    <div class="say" id="say">Hi, I’m Bubbles! Pick a category and let’s convert.</div>
+    <svg viewBox="0 0 260 200" role="img" aria-label="A smiling blue whale">
+      <g class="spout" fill="none" stroke="#bff6ff" stroke-width="5" stroke-linecap="round">
+        <path d="M150 58 Q150 30 132 16"/><path d="M150 58 Q150 30 168 16"/><path d="M150 58 V26"/></g>
+      <path d="M200 110 Q236 84 250 52 Q232 66 222 62 Q226 80 206 96 Z" fill="#2a8fe0"/>
+      <path d="M244 56 Q228 74 214 82" stroke="#6fc3ff" stroke-width="4" fill="none"/>
+      <path d="M28 120 Q28 62 110 60 Q196 58 214 112 Q222 156 160 172 Q70 188 34 150 Q28 138 28 120 Z" fill="#3aa0f2"/>
+      <path d="M40 140 Q90 190 176 168 Q216 156 218 120 Q200 158 130 164 Q70 168 40 140 Z" fill="#cdeeff"/>
+      <g class="fin"><path d="M120 142 Q142 170 170 160 Q156 140 140 136 Z" fill="#2a8fe0"/></g>
+      <circle cx="78" cy="108" r="9" fill="#fff"/><circle cx="80" cy="108" r="5.5" fill="#04365a"/><circle cx="82" cy="105" r="2" fill="#fff"/>
+      <ellipse cx="58" cy="128" rx="9" ry="5.5" fill="#ff9fb4" opacity=".8"/>
+      <path d="M66 130 Q86 148 108 128" stroke="#04365a" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+</section>
+
+<section id="converter">
+  <div class="wrap">
+    <div class="card">
+      <h2>🐚 The Converter</h2>
+      <p class="lead">Choose a category, type a number, and the answer surfaces instantly.</p>
+      <div class="cats" id="cats" role="group" aria-label="Conversion category"></div>
+
+      <div class="amount">
+        <label for="val">Amount</label>
+        <input id="val" type="text" inputmode="decimal" autocomplete="off" placeholder="Enter a number, like 12.5">
+      </div>
+      <div class="grid">
+        <div><label for="from">From</label><select id="from"></select></div>
+        <button class="btn swap" id="swap" type="button" aria-label="Swap units" title="Swap units">⇄</button>
+        <div><label for="to">To</label><select id="to"></select></div>
+      </div>
+      <div class="err" id="err" role="alert"></div>
+      <div class="actions"><button class="btn alt" id="clear" type="button">Clear</button></div>
+
+      <div class="result" aria-live="polite">
+        <div class="eq" id="eq">Your answer will float up here 🫧</div>
+        <div class="big" id="big">—</div>
+        <div class="unit" id="unit"></div>
+      </div>
+      <div class="facts" id="facts"></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="card about">
+      <h2>🪸 About AquaConvert</h2>
+      <p>AquaConvert turns one unit into another without leaving the reef. It handles length, weight, temperature, volume, and time, and works entirely in your browser, so nothing is sent anywhere.</p>
+      <p>Type any whole or decimal number and the result updates as you type. Every unit is converted through a common base unit (meters, kilograms, liters, seconds), and temperature uses its own formulas, so results stay accurate.</p>
+      <div class="shells" aria-hidden="true">
+        <svg width="64" height="56" viewBox="0 0 64 56"><path d="M32 4 C10 4 2 26 6 40 Q32 54 58 40 C62 26 54 4 32 4Z" fill="#ffb7c5"/><g stroke="#ff7f9c" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M32 6 V46"/><path d="M20 8 L18 44"/><path d="M44 8 L46 44"/><path d="M10 20 L12 42"/><path d="M54 20 L52 42"/></g><rect x="24" y="44" width="16" height="9" rx="3" fill="#ff9fb4"/></svg>
+        <svg width="60" height="60" viewBox="0 0 60 60"><path d="M30 30 m0 0 a4 4 0 1 1 6 3 a10 10 0 1 1 -14 -10 a17 17 0 1 1 22 20 a24 24 0 1 1 -32 -30" stroke="#ffe0a3" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+        <svg width="56" height="56" viewBox="0 0 60 60"><path d="M30 4 L37 22 L56 22 L41 34 L47 54 L30 42 L13 54 L19 34 L4 22 L23 22Z" fill="#ff9a76" stroke="#ffc2a8" stroke-width="2" stroke-linejoin="round"/><circle cx="30" cy="30" r="3" fill="#fff" opacity=".7"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="floor" aria-hidden="true">
+  <svg viewBox="0 0 1200 170" preserveAspectRatio="none">
+    <path d="M0 120 Q150 90 300 118 T600 112 T900 120 T1200 100 V170 H0Z" fill="#e9c98a"/>
+    <path d="M0 140 Q200 120 400 140 T800 138 T1200 130 V170 H0Z" fill="#d6b06a"/>
+    <g class="sway"><path d="M80 130 Q70 90 90 70 M80 130 Q92 100 112 92 M80 130 Q60 110 50 92" stroke="#ff6f91" stroke-width="12" fill="none" stroke-linecap="round"/></g>
+    <g class="sway"><path d="M210 132 Q205 96 220 78 M210 132 Q230 110 246 104" stroke="#ff9a76" stroke-width="11" fill="none" stroke-linecap="round"/></g>
+    <g class="sway"><path d="M470 126 q-20 -40 -4 -64 M470 126 q10 -34 26 -44 M470 126 q26 -20 40 -20" stroke="#b983ff" stroke-width="11" fill="none" stroke-linecap="round"/></g>
+    <g class="sway"><path d="M720 130 Q712 92 728 72 M720 130 Q740 104 758 98 M720 130 Q698 112 690 94" stroke="#ff6f91" stroke-width="12" fill="none" stroke-linecap="round"/></g>
+    <g class="sway"><path d="M960 128 q-8 -44 8 -66 M960 128 q22 -26 40 -32" stroke="#ffb347" stroke-width="11" fill="none" stroke-linecap="round"/></g>
+    <g class="sway"><path d="M1120 124 Q1112 90 1128 70 M1120 124 Q1140 102 1158 96" stroke="#b983ff" stroke-width="12" fill="none" stroke-linecap="round"/></g>
+    <g class="sway" fill="#3ddc97"><path d="M340 130 q-8 -40 4 -60 q10 30 4 60Z"/><path d="M356 130 q2 -34 16 -50 q4 28 -4 50Z"/></g>
+    <g class="sway" fill="#3ddc97"><path d="M590 132 q-8 -40 4 -60 q10 30 4 60Z"/><path d="M606 132 q2 -34 16 -50 q4 28 -4 50Z"/></g>
+    <g class="sway" fill="#3ddc97"><path d="M860 132 q-8 -40 4 -60 q10 30 4 60Z"/><path d="M876 132 q2 -34 16 -50 q4 28 -4 50Z"/></g>
+  </svg>
+</div>
+<footer>Made with 💙 Under the Sea.</footer>
+</div>
+
+<script>
+// ---------- Data: each unit has a factor to its category's base unit ----------
+const UNITS = {
+  length: { icon:"📏", label:"Length", base:"meters", list:[
+    ["mm","Millimeters",0.001],["cm","Centimeters",0.01],["m","Meters",1],["km","Kilometers",1000],
+    ["in","Inches",0.0254],["ft","Feet",0.3048],["mi","Miles",1609.344]], def:["m","ft"] },
+  weight: { icon:"⚖️", label:"Weight", base:"kilograms", list:[
+    ["mg","Milligrams",1e-6],["g","Grams",0.001],["kg","Kilograms",1],
+    ["lb","Pounds",0.45359237],["oz","Ounces",0.028349523125]], def:["kg","lb"] },
+  temperature: { icon:"🌡️", label:"Temperature", list:[
+    ["C","Celsius"],["F","Fahrenheit"],["K","Kelvin"]], def:["C","F"] },
+  volume: { icon:"🧪", label:"Volume", base:"liters", list:[
+    ["ml","Milliliters",0.001],["l","Liters",1],["cup","Cups (US)",0.2365882365],["gal","Gallons (US)",3.785411784]], def:["l","gal"] },
+  time: { icon:"⏱️", label:"Time", base:"seconds", list:[
+    ["s","Seconds",1],["min","Minutes",60],["h","Hours",3600],["d","Days",86400]], def:["h","min"] }
+};
+const TIPS = {
+  length:"A blue whale can be about 30 meters long!",
+  weight:"A blue whale weighs as much as around 30 elephants.",
+  temperature:"Water freezes at 0 °C and boils at 100 °C.",
+  volume:"One US gallon is about 3.79 liters.",
+  time:"A whale’s heart beats only a few times a minute when diving."
+};
+// Temperature goes through Celsius
+const TEMP_TO_C = { C:v=>v, F:v=>(v-32)*5/9, K:v=>v-273.15 };
+const TEMP_FROM_C = { C:v=>v, F:v=>v*9/5+32, K:v=>v+273.15 };
+const KELVIN_MIN_C = -273.15;
+
+// ---------- Elements ----------
+const $ = id => document.getElementById(id);
+const el = { cats:$("cats"), val:$("val"), from:$("from"), to:$("to"), err:$("err"), eq:$("eq"),
+  big:$("big"), unit:$("unit"), facts:$("facts"), say:$("say"), swap:$("swap"), clear:$("clear") };
+let category = "length";
+
+// ---------- Conversion ----------
+function convert(cat, value, from, to){
+  if(cat === "temperature") return TEMP_FROM_C[to](TEMP_TO_C[from](value));
+  const f = u => UNITS[cat].list.find(x => x[0] === u)[2];
+  return value * f(from) / f(to);
+}
+function clean(n){ return parseFloat(n.toPrecision(12)); }   // removes floating-point noise
+function format(n){
+  n = clean(n);
+  if(n === 0) return "0";
+  const a = Math.abs(n);
+  if(a >= 1e12 || a < 1e-6) return n.toExponential(6).replace(/\.?0+e/,"e");
+  return n.toLocaleString("en-US",{maximumFractionDigits:8});
+}
+function name(cat,u){ return UNITS[cat].list.find(x=>x[0]===u)[1]; }
+
+// ---------- UI ----------
+function fillSelects(){
+  const opts = UNITS[category].list.map(u=>`<option value="${u[0]}">${u[1]}</option>`).join("");
+  el.from.innerHTML = el.to.innerHTML = opts;
+  [el.from.value, el.to.value] = UNITS[category].def;
+}
+function buildCats(){
+  el.cats.innerHTML = "";
+  Object.entries(UNITS).forEach(([key,c])=>{
+    const b = document.createElement("button");
+    b.type="button"; b.className="cat"; b.textContent=`${c.icon} ${c.label}`;
+    b.setAttribute("aria-pressed", key===category);
+    b.onclick = () => { category=key; buildCats(); fillSelects(); el.say.textContent = TIPS[key]; update(); };
+    el.cats.appendChild(b);
+  });
+}
+function showError(msg){
+  el.err.textContent = msg;
+  el.eq.textContent = "Your answer will float up here 🫧";
+  el.big.textContent = "—"; el.unit.textContent = ""; el.facts.innerHTML = "";
+}
+function update(){
+  const raw = el.val.value.trim().replace(/,/g,"");
+  el.err.textContent = "";
+  if(raw === ""){ showError(""); return; }
+  if(!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(raw)){
+    showError("Please enter a valid number, like 12 or 3.75."); return;
+  }
+  const v = parseFloat(raw);
+  if(!isFinite(v)){ showError("That number is too big for the ocean. Try a smaller one."); return; }
+  const from = el.from.value, to = el.to.value;
+  if(category==="temperature"){
+    const c = TEMP_TO_C[from](v);
+    if(c < KELVIN_MIN_C - 1e-9){ showError("That is below absolute zero (−273.15 °C), the coldest possible temperature."); return; }
+  } else if(category!=="temperature" && v < 0 && category!=="time" && false){ }
+  const r = convert(category, v, from, to);
+  const sym = {C:"°C",F:"°F",K:"K"};
+  const lab = (u) => category==="temperature" ? sym[u] : u;
+  el.eq.textContent = `${format(v)} ${lab(from)} equals`;
+  el.big.textContent = format(r);
+  el.unit.textContent = name(category,to);
+  el.big.classList.remove("pop"); void el.big.offsetWidth; el.big.classList.add("pop");
+  // quick-look: show the same value in every other unit
+  el.facts.innerHTML = UNITS[category].list.filter(u=>u[0]!==from && u[0]!==to).slice(0,4).map(u=>
+    `<div class="fact"><b>${format(convert(category,v,from,u[0]))} ${lab(u[0])}</b>${u[1]}</div>`).join("");
+}
+el.val.addEventListener("input", update);
+el.from.addEventListener("change", update);
+el.to.addEventListener("change", update);
+el.swap.addEventListener("click", () => {
+  [el.from.value, el.to.value] = [el.to.value, el.from.value];
+  el.swap.classList.toggle("spin"); update();
+});
+el.clear.addEventListener("click", () => {
+  el.val.value = ""; fillSelects(); update(); el.val.focus();
+});
+
+// ---------- Bubbles ----------
+function makeBubbles(n){
+  const sea = $("sea");
+  for(let i=0;i<n;i++){
+    const b = document.createElement("span"); b.className="bubble";
+    const s = 8 + Math.random()*30;
+    b.style.cssText = `left:${Math.random()*100}%;width:${s}px;height:${s}px;animation-duration:${8+Math.random()*12}s;animation-delay:${-Math.random()*18}s`;
+    sea.appendChild(b);
+  }
+}
+
+buildCats(); fillSelects(); makeBubbles(26); update();
+</script>
+</body>
+</html>
